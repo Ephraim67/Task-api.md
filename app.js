@@ -30,6 +30,11 @@ app.use('/api/admin/', adminRoutes);
 // Students adding route
 app.use('/api/students', studentRoutes);
 
+// Root to prevent cannot get
+app.get('/', (req, res) => {
+    res.send('API is running.....')
+})
+
 // Create default admin user
 async function defaultUser() {
     try {
@@ -61,6 +66,7 @@ mongoose.connection.once('open', async () => {
     console.log('MongoDB connected');
     await defaultUser();
 });
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
