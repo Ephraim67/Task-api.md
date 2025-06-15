@@ -7,13 +7,19 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const bcrypt = require('bcrypt');
 const User = require('./models/user');
-const studentRoutes = require('./routes/studentsRoutes'); 
+const studentRoutes = require('./routes/studentsRoutes');
+
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
+
 
 // login route
 const adminRoutes = require('./routes/auth');
 
 
 const app = express();
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Add debugging to verify the env var is still available here
 console.log('MONGO_URI in main app:', process.env.MONGO_URI ? 'EXISTS' : 'UNDEFINED');
