@@ -2,8 +2,16 @@
 
 const express = require('express');
 const router = express.Router();
-const studentController = require('../controller/studentContoller');
-const { authMiddleware } = require('../middlewares/authMiddleware');
+const studentController = require('../controller/studentController');
+const { authenticateUser } = require('../middlewares/authMiddleware');
+
+// if (!studentController.createStudent) {
+//   console.warn('❗ createStudent handler is missing from studentController');
+// }
+
+console.log('studentController.createStudent:', studentController.createStudent);
+console.log('authMiddleware:', authenticateUser);
+
 
 /**
  * @swagger
@@ -26,7 +34,7 @@ const { authMiddleware } = require('../middlewares/authMiddleware');
  *               $ref: '#/components/schemas/Student'
  */
 
-router.post('/', authMiddleware, studentController.createStudent);
+router.post('/', authenticateUser, studentController.createStudent);
 
 /**
  * @swagger
@@ -44,6 +52,6 @@ router.post('/', authMiddleware, studentController.createStudent);
  *               items:
  *                 $ref: '#/components/schemas/Student'
  */
-router.get('/', authMiddleware, studentController.getAllStudents);
+router.get('/', authenticateUser, studentController.getAllStudents);
 
 module.exports = router;

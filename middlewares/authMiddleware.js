@@ -1,39 +1,53 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const Student = require('../models/students')
+const Student = require('../models/students');
 
-exports.authMiddleware = async (req, res, next) => {
-    // Get token from Authorization header
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+const authenticateUser = async (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ 
-            success: false,
-            message: 'Access denied. No token provided.' 
-        });
+        return res.status(401).json({ success: false, message: 'No token provided.' });
     }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById(decoded.id).select('-password'); // Exclude password
+        const student = await Student.findById(decoded.id).select('-password');
 
-        if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid token - user not found.'
-            });
+        if (!student) {
+            return res.status(401).json({ success: false, message: 'Invalid token - student not found.' });
         }
 
-        req.user = user; // ✅ req.user is now set
-
+        req.user = student;
+        req.user.role = 'student';
         next();
-    } catch (error) {
-        console.error('Authentication error:', error);
-
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid or expired token.'
-        });
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ success: false, message: 'Invalid or expired token.' });
     }
 };
+
+const authenticateAdmin = async (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'No token provided.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const admin = await User.findById(decoded.id).select('-password');
+
+        if (!admin || admin.role !== 'admin') {
+            return res.status(403).json({ success: false, message: 'Access denied. Not an admin.' });
+        }
+
+        req.user = admin;
+        req.user.role = 'admin';
+        next();
+    } catch (err) {
+        console.error(err);
+        res.status(401).json({ success: false, message: 'Invalid or expired token.' });
+    }
+};
+
+module.exports = { authenticateUser, authenticateAdmin };

@@ -4,7 +4,7 @@ const authController = require('../controller/authController');
 
 /**
  * @swagger
- * /api/admin/login:
+ * /api/v1/admin/login:
  *   post:
  *     summary: Login user or admin
  *     tags: [Auth]
@@ -17,10 +17,10 @@ const authController = require('../controller/authController');
  *             properties:
  *               username:
  *                 type: string
- *                 example: admin
+ *                 example: test
  *               password:
  *                 type: string
- *                 example: admin123
+ *                 example: test
  *     responses:
  *       200:
  *         description: Successful login returns JWT token

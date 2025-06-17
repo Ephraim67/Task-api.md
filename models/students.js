@@ -27,9 +27,14 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
-}, {
-    timestamps: true // ✅ automatically adds createdAt and updatedAt
-});
+    },
 
-module.exports = mongoose.model('Student', studentSchema);
+    
+    quizSubmissions: {
+        type: mongoose.Schema.Types.Mixed, 
+        default: {}
+    }
+
+}, {
+    timestamps: true
+});

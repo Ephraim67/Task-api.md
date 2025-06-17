@@ -6,11 +6,11 @@ const options = {
     info: {
       title: 'Task API',
       version: '1.0.0',
-      description: 'Task Base API for Webdeves Students.',
+      description: 'Task-based API for Webdeves Students.',
     },
     servers: [
       {
-        url: 'http://localhost:3000', // Change to your deployed Render base URL when live
+        url: 'https://webdeves-students-api.onrender.com/api-docs',
       },
     ],
     components: {
@@ -60,10 +60,63 @@ const options = {
             },
           },
         },
+        Quiz: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              example: 'quiz-12345',
+            },
+            quiztitle: {
+              type: 'string',
+              example: 'Intro to Cybersecurity',
+            },
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  questionText: {
+                    type: 'string',
+                    example: 'What is a firewall?',
+                  },
+                  options: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                    },
+                    example: ['A', 'B', 'C', 'D'],
+                  },
+                  correctAnswer: {
+                    type: 'string',
+                    example: 'A',
+                  },
+                  points: {
+                    type: 'integer',
+                    example: 5,
+                  },
+                },
+              },
+            },
+            dueDate: {
+              type: 'string',
+              format: 'date',
+              example: '2025-06-30',
+            },
+            totalPoints: {
+              type: 'integer',
+              example: 20,
+            },
+            revealedAnswers: {
+              type: 'boolean',
+              example: false,
+            },
+          },
+        },
       },
     },
   },
-  apis: ['./routes/*.js'], // Swagger will scan these files for JSDoc comments
+  apis: ['./routes/*.js'], // Scan all route files for JSDoc comments
 };
 
 const swaggerSpec = swaggerJSDoc(options);

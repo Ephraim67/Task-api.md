@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user'); // Use the central models import
+const User = require('../models/user'); 
 
 exports.login = async (req, res) => {
     console.log('Request body', req.body);
@@ -8,9 +8,8 @@ exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Find user with their student profile if they're a student
-        // Mongoose synthax
-        const user = await User.findOne({ username }).populate('studentProfile', 'id name email'); // Populate student profile if exists
+        
+        const user = await User.findOne({ username }); 
         if (!user) {
             return res.status(401).json({ 
                 success: false,
@@ -18,7 +17,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Check password
+        
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ 
@@ -27,11 +26,11 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Create token with relevant user data
+        
         const tokenPayload = {
             id: user._id,
             role: user.role,
-            // studentId: user.studentProfile?.id || null
+            
         };
 
         const token = jwt.sign(
@@ -40,7 +39,7 @@ exports.login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        // Prepare response data
+        
         res.json({
             success: true,
             token,

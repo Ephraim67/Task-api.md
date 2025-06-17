@@ -8,12 +8,13 @@ const connectDB = require('./config/database');
 const bcrypt = require('bcrypt');
 const User = require('./models/user');
 const studentRoutes = require('./routes/studentsRoutes');
+const quizRoutes = require('./routes/quizRoutes'); 
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 
-// login route
+
 const adminRoutes = require('./routes/auth');
 
 
@@ -21,27 +22,30 @@ const app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Add debugging to verify the env var is still available here
+
 console.log('MONGO_URI in main app:', process.env.MONGO_URI ? 'EXISTS' : 'UNDEFINED');
 
-// Connect to MongoDB
+
 connectDB();
 
-// Middleware to parse JSON
+
 app.use(express.json());
 
-// Mount your login route at /api/admin
-app.use('/api/admin/', adminRoutes);
 
-// Students adding route
-app.use('/api/students', studentRoutes);
+app.use('/api/v1/admin/', adminRoutes);
 
-// Root to prevent cannot get
+
+app.use('/api/v1/students', studentRoutes);
+
+
+app.use('/api/v1/quizroute', quizRoutes);
+
+
 app.get('/', (req, res) => {
     res.send('API is running.....')
 })
 
-// Create default admin user
+
 async function defaultUser() {
     try {
         const defaultUsername = 'admin';
