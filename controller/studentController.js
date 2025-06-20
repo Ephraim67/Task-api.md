@@ -7,8 +7,8 @@ exports.createStudent = async (req, res) => {
         console.log('req.body:', req.body);
         console.log('req.user:', req.user);
 
-        const { name, email, phoneNumber, gender, course } = req.body;
-        const userId = req.user?._id;
+        const { name, email, phoneNumber, gender, course, userId } = req.body;
+        // const userId = req.user?._id;
 
         if (!userId) {
             return res.status(400).json({ message: 'User not authenticated' });
