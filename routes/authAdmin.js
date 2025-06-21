@@ -42,6 +42,66 @@ router.post('/login', authController.login);
 
 /**
  * @swagger
+ * /api/v1/admin/:
+ *   post:
+ *     summary: Upload a new quiz to a course
+ *     tags: [Quizzes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseCode
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The course code
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quiztitle
+ *               - questions
+ *             properties:
+ *               quiztitle:
+ *                 type: string
+ *               dueDate:
+ *                 type: string
+ *                 format: date
+ *               totalPoints:
+ *                 type: integer
+ *               questions:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - questionText
+ *                     - options
+ *                     - correctAnswer
+ *                   properties:
+ *                     questionText:
+ *                       type: string
+ *                     options:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     correctAnswer:
+ *                       type: string
+ *     responses:
+ *       201:
+ *         description: Quiz uploaded successfully
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/', authenticateAdmin, quizSubmissionController.createCourse)
+
+
+/**
+ * @swagger
  * /api/v1/admin/{courseCode}/upload:
  *   post:
  *     summary: Upload a new quiz to a course

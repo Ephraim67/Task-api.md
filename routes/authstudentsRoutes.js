@@ -46,7 +46,7 @@ router.post(
         check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
         check('confirmPassword').notEmpty().withMessage('Please confirm your password'),
         check('phoneNumber').notEmpty().withMessage('Phone number is required'),
-        check('gender').isIn(['male', 'female']).withMessage('Invalid gender'),
+        check('gender').isIn(['Male', 'Female']).withMessage('Invalid gender'),
         check('course').notEmpty().withMessage('Course is required')
     ],
     authStudentsController.studentSignup

@@ -1,6 +1,25 @@
 const Course = require('../models/quizSubmission');
 const Student = require('../models/students');
 
+exports.createCourse = async (req, res) => {
+    try {
+        const { courseCode, courseName, description } = req.body;
+
+        const existing = await Course.findOne({ courseCode });
+        if (existing) {
+            return res.status(409).json({ message: "Course code already exists"});
+        }
+
+        const course = new Course({ courseCode, courseName, description });
+
+        await course.save();
+
+        res.status(201).json({ message: "Course created successfully", course });
+    } catch (err) {
+        return res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
 exports.uploadQuiz = async (req, res) => {
     try {
         const { courseCode } = req.params;
