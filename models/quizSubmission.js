@@ -1,20 +1,23 @@
 const mongoose = require('mongoose');
-// const { options } = require('../routes/authstudentsRoutes');
 
+// Embedded question schema
 const questionSchema = new mongoose.Schema({
-    questionText: { type: String, required: true },
-    options: {
-        type: [String],
-        required: true,
-        validate: [arr => arr.length >= 2, 'At least 2 options are required']
-    },
+  questionText: { 
+    type: String,
+    required: true
+},
 
-    correctAnswer: { type: String, required: true },
-    points: { type: Number, default: 1 }
+options: {
+    type: [String],
+    required: true,
+    validate: [arr => arr.length >= 2, 'At least 2 options are required']
+},
+
+  correctAnswer: { type: String, required: true },
+  points: { type: Number, default: 1 }
 }, { _id: false });
 
-
-
+// Embedded quiz schema
 const quizSchema = new mongoose.Schema({
   id: {
     type: String,
@@ -28,10 +31,11 @@ const quizSchema = new mongoose.Schema({
   revealedAnswers: { type: Boolean, default: false }
 }, { _id: false });
 
-
+// Main Course schema
 const courseSchema = new mongoose.Schema({
   courseCode: { type: String, required: true, unique: true },
   courseName: { type: String, required: true },
+  description: { type: String },
   quizzes: [quizSchema]
 }, {
   timestamps: true
