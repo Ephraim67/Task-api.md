@@ -1,5 +1,49 @@
-const Course = require('../models/course');
-const Student = require('../models/student');
+const Course = require('../models/quizSubmission');
+const Student = require('../models/students');
+
+exports.uploadQuiz = async (req, res) => {
+    try {
+        const { courseCode } = req.params;
+        const { quiztitle, questions, dueDate, totalPoints } = req.body;
+
+        if (!quiztitle || !questions || !Array.isArray(questions)) {
+            return res.status(400).json({ message: 'Invalid quiz input.' });
+        }
+
+        const course = await Course.findOne({ courseCode });
+        if (!course) return res.status(404).json({ message: 'Course not found.' });
+
+        const newQuiz = {
+            id: Date.now().toString(),
+            quiztitle,
+            questions,
+            dueDate: dueDate ? new Date(dueDate) : null,
+            totalPoints: totalPoints || questions.length,
+            revealedAnswers: false,
+        };
+
+        course.quizzes.push(newQuiz);
+        await course.save();
+
+        res.status(201).json({ message: 'Quiz uploaded successfully.', quiz: newQuiz });
+    } catch (error) {
+        console.error('Error uploading quiz:', error);
+        res.status(500).json({ message: 'Internal server error.', error: error.message });
+    }
+};
+
+exports.getCourseQuizzes = async (req, res) => {
+    try {
+        const { courseCode } = req.params;
+        const course = await Course.findOne({ courseCode });
+        if (!course) return res.status(404).json({ message: 'Course not found.' });
+
+        res.status(200).json({ quizzes: course.quizzes });
+    } catch (error) {
+        console.error('Error retrieving quizzes:', error);
+        res.status(500).json({ message: 'Internal server error.', error: error.message });
+    }
+};
 
 exports.submitQuiz = async (req, res) => {
     try {
@@ -56,6 +100,25 @@ exports.submitQuiz = async (req, res) => {
     }
 };
 
+exports.revealQuizAnswers = async (req, res) => {
+    try {
+        const { courseCode, quizId } = req.params;
+        const course = await Course.findOne({ courseCode });
+        if (!course) return res.status(404).json({ message: 'Course not found.' });
+
+        const quiz = course.quizzes.find(q => q.id === quizId);
+        if (!quiz) return res.status(404).json({ message: 'Quiz not found.' });
+
+        quiz.revealedAnswers = true;
+        await course.save();
+
+        res.status(200).json({ message: 'Quiz answers revealed.', quizId });
+    } catch (error) {
+        console.error('Error revealing quiz answers:', error);
+        res.status(500).json({ message: 'Internal server error.', error: error.message });
+    }
+};
+
 
 exports.getQuizResults = async (req, res) => {
     try {
@@ -103,4 +166,5 @@ function calculateScore(answers, questions) {
         return score + (answer === q.correctAnswer ? (q.points || 1) : 0);
     }, 0);
 }
+
 

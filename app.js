@@ -1,13 +1,10 @@
-// Load environment variables FIRST, before any other imports
 require('dotenv').config();
-
-// Now import other modules
 const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const bcrypt = require('bcrypt');
-const User = require('./models/user');
-const studentRoutes = require('./routes/studentsRoutes');
+const User = require('./models/admin');
+const authstudentsRoutes = require('./routes/authstudentsRoutes');
 const quizRoutes = require('./routes/quizRoutes'); 
 
 const swaggerUi = require('swagger-ui-express');
@@ -15,7 +12,7 @@ const swaggerSpec = require('./swagger');
 
 
 
-const adminRoutes = require('./routes/auth');
+const authAdmin = require('./routes/authAdmin');
 
 
 const app = express();
@@ -32,10 +29,10 @@ connectDB();
 app.use(express.json());
 
 
-app.use('/api/v1/admin/', adminRoutes);
+app.use('/api/v1/admin/', authAdmin);
 
 
-app.use('/api/v1/students', studentRoutes);
+app.use('/api/v1/students', authstudentsRoutes);
 
 
 app.use('/api/v1/quizroute', quizRoutes);
@@ -54,7 +51,7 @@ async function defaultUser() {
         const existingUser = await User.findOne({ username: defaultUsername });
 
         if (!existingUser) {
-            // const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+            
 
             await User.create({
                 username: defaultUsername,
@@ -71,14 +68,14 @@ async function defaultUser() {
     }
 }
 
-// Wait for mongoose to connect, then create default user
+
 mongoose.connection.once('open', async () => {
     console.log('MongoDB connected');
     await defaultUser();
 });
 
 
-// Start the server
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
