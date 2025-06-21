@@ -2,22 +2,38 @@ const Course = require('../models/quizSubmission');
 const Student = require('../models/students');
 
 exports.createCourse = async (req, res) => {
-    try {
-        const { courseCode, courseName, description } = req.body;
+  try {
+    const { courseName, description } = req.body;
 
-        const existing = await Course.findOne({ courseCode });
-        if (existing) {
-            return res.status(409).json({ message: "Course code already exists"});
-        }
-
-        const course = new Course({ courseCode, courseName, description });
-
-        await course.save();
-
-        res.status(201).json({ message: "Course created successfully", course });
-    } catch (err) {
-        return res.status(500).json({ message: "Server error", error: err.message });
+    if (!courseName) {
+      return res.status(400).json({ message: "Course name is required" });
     }
+
+    // Step 1: Generate code from name + random 3-digit number
+    const codePrefix = courseName.trim().substring(0, 3).toUpperCase();
+    const randomDigits = Math.floor(100 + Math.random() * 900);
+    const courseCode = `${codePrefix}${randomDigits}`;
+
+    // Step 2: Check for duplicate
+    const existing = await Course.findOne({ courseCode });
+    if (existing) {
+      return res.status(409).json({ message: "Course code already exists. Try again." });
+    }
+
+    // Step 3: Save course with generated courseCode
+    const course = new Course({
+      courseCode, // <- ensure this is passed here
+      courseName,
+      description
+    });
+
+    await course.save();
+
+    res.status(201).json({ message: "Course created successfully", course });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
 };
 
 exports.uploadQuiz = async (req, res) => {
