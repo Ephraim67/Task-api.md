@@ -44,7 +44,7 @@ router.post('/login', authController.login);
  * @swagger
  * /api/v1/admin/:
  *   post:
- *     summary: Upload a new quiz to a course
+ *     summary: Upload a new course
  *     tags: [Quizzes]
  *     security:
  *       - bearerAuth: []
