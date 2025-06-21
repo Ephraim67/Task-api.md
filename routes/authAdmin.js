@@ -99,6 +99,43 @@ router.post('/login', authController.login);
  */
 router.post('/', authenticateAdmin, quizSubmissionController.createCourse)
 
+/**
+ * @swagger
+ * /api/v1/admin/:
+ *   get:
+ *     summary: Get all students
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of students
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 count:
+ *                   type: integer
+ *                 students:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       // Add more fields as needed
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
+
 
 /**
  * @swagger

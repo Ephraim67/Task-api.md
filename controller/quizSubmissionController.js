@@ -67,6 +67,20 @@ exports.uploadQuiz = async (req, res) => {
     }
 };
 
+exports.getAllStudents = async (req, res) => {
+  try {
+    const students = await Student.find().select('-password'); // Exclude passwords
+    res.status(200).json({
+      success: true,
+      count: students.length,
+      students
+    });
+  } catch (error) {
+    console.error('Error fetching students:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
 exports.getCourseQuizzes = async (req, res) => {
     try {
         const { courseCode } = req.params;
