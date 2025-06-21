@@ -81,6 +81,50 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
+exports.getCourses = async (req, res) => {
+    try {
+        const courses = await Course.find();
+        res.json({ courses });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+exports.updateCourse = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { courseName, description } = req.body;
+
+        const course = await Course.findByIdAndUpdate(
+            id,
+
+            { courseName, description },
+
+            { new: true }
+        );
+
+        if (!course) return res.status(404).json({ message: 'Course not found'});
+
+        res.json({ message: 'Course updated successfully', course })
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message})
+    }
+}
+
+exports.deleteCourse = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const course = await Course.findByIdAndDelete(id);
+
+        if (!course) return res.status(404).json({ message: 'Course not found' });
+
+        res.json({ message: 'Course deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+
 exports.getCourseQuizzes = async (req, res) => {
     try {
         const { courseCode } = req.params;

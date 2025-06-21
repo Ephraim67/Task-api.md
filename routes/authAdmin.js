@@ -3,8 +3,17 @@ const router = express.Router();
 const authController = require('../controller/adminController');
 const quizSubmissionController = require('../controller/quizSubmissionController');
 const { validateQuizUpload } = require('../middlewares/validateQuiz');
-const { authenticateAdmin } = require('../middlewares/authMiddleware')
+const { authenticateAdmin } = require('../middlewares/authMiddleware');
 const handleValidation = require('../middlewares/handleValidation');
+
+/**
+ * @swagger
+ * tags:
+ *   - name: Auth
+ *   - name: Course
+ *   - name: Quizzes
+ *   - name: Students
+ */
 
 /**
  * @swagger
@@ -21,20 +30,13 @@ const handleValidation = require('../middlewares/handleValidation');
  *             properties:
  *               username:
  *                 type: string
- *                 example: test
+ *                 example: admin
  *               password:
  *                 type: string
- *                 example: test
+ *                 example: adminpass
  *     responses:
  *       200:
  *         description: Successful login returns JWT token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
  *       401:
  *         description: Invalid credentials
  */
@@ -42,10 +44,67 @@ router.post('/login', authController.login);
 
 /**
  * @swagger
- * /api/v1/admin/:
+ * /api/v1/admin:
  *   post:
- *     summary: Upload a new course
- *     tags: [Quizzes]
+ *     summary: Create a new course
+ *     tags: [Course]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               courseName:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Course created successfully
+ *       409:
+ *         description: Course already exists
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/', authenticateAdmin, quizSubmissionController.createCourse);
+
+/**
+ * @swagger
+ * /api/v1/admin:
+ *   get:
+ *     summary: Get all students
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of students
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
+
+/**
+ * @swagger
+ * /api/v1/admin/course-catalogue:
+ *   get:
+ *     summary: Get all courses
+ *     tags: [Course]
+ *     responses:
+ *       200:
+ *         description: List of courses
+ */
+router.get('/course-catalogue', quizSubmissionController.getCourses);
+
+/**
+ * @swagger
+ * /api/v1/admin/course-catalogue/{courseCode}:
+ *   put:
+ *     summary: Update a course
+ *     tags: [Course]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -54,88 +113,46 @@ router.post('/login', authController.login);
  *         required: true
  *         schema:
  *           type: string
- *         description: The course code
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - quiztitle
- *               - questions
  *             properties:
- *               quiztitle:
+ *               courseName:
  *                 type: string
- *               dueDate:
+ *               description:
  *                 type: string
- *                 format: date
- *               totalPoints:
- *                 type: integer
- *               questions:
- *                 type: array
- *                 items:
- *                   type: object
- *                   required:
- *                     - questionText
- *                     - options
- *                     - correctAnswer
- *                   properties:
- *                     questionText:
- *                       type: string
- *                     options:
- *                       type: array
- *                       items:
- *                         type: string
- *                     correctAnswer:
- *                       type: string
  *     responses:
- *       201:
- *         description: Quiz uploaded successfully
- *       400:
- *         description: Invalid input
- *       401:
- *         description: Unauthorized
+ *       200:
+ *         description: Course updated
+ *       404:
+ *         description: Course not found
  */
-router.post('/', authenticateAdmin, quizSubmissionController.createCourse)
+router.put('/course-catalogue/:courseCode', authenticateAdmin, quizSubmissionController.updateCourse);
 
 /**
  * @swagger
- * /api/v1/admin/:
- *   get:
- *     summary: Get all students
- *     tags: [Admin]
+ * /api/v1/admin/course-catalogue/{courseCode}:
+ *   delete:
+ *     summary: Delete a course
+ *     tags: [Course]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseCode
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: List of students
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 count:
- *                   type: integer
- *                 students:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       _id:
- *                         type: string
- *                       name:
- *                         type: string
- *                       email:
- *                         type: string
- *                       // Add more fields as needed
- *       401:
- *         description: Unauthorized
+ *         description: Course deleted
+ *       404:
+ *         description: Course not found
  */
-router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
-
+router.delete('/course-catalogue/:courseCode', authenticateAdmin, quizSubmissionController.deleteCourse);
 
 /**
  * @swagger
@@ -151,16 +168,12 @@ router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
  *         required: true
  *         schema:
  *           type: string
- *         description: The course code
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - quiztitle
- *               - questions
  *             properties:
  *               quiztitle:
  *                 type: string
@@ -173,10 +186,6 @@ router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
  *                 type: array
  *                 items:
  *                   type: object
- *                   required:
- *                     - questionText
- *                     - options
- *                     - correctAnswer
  *                   properties:
  *                     questionText:
  *                       type: string
@@ -191,10 +200,7 @@ router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
  *         description: Quiz uploaded successfully
  *       400:
  *         description: Invalid input
- *       401:
- *         description: Unauthorized
  */
-
 router.post(
   '/:courseCode/upload',
   authenticateAdmin,
@@ -202,7 +208,6 @@ router.post(
   handleValidation,
   quizSubmissionController.uploadQuiz
 );
-
 
 /**
  * @swagger
@@ -225,15 +230,14 @@ router.post(
  *           type: string
  *     responses:
  *       200:
- *         description: Answers revealed
- *       401:
- *         description: Unauthorized
+ *         description: Quiz answers revealed
+ *       404:
+ *         description: Quiz or course not found
  */
 router.patch(
   '/:courseCode/:quizId/reveal',
   authenticateAdmin,
   quizSubmissionController.revealQuizAnswers
 );
-
 
 module.exports = router;
