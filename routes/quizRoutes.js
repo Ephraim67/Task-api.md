@@ -1,57 +1,20 @@
 const express = require('express');
-const { authenticateAdmin, authenticateUser } = require('../middlewares/authMiddleware');
-const quizController = require('../controller/quizController');
 const router = express.Router();
-
-
+const quizSubmissionController = require('../controller/quizSubmissionController');
+const { authenticateUser } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
- * /course/{courseCode}/quizzes:
- *   post:
- *     summary: Admin uploads a new quiz to a course
- *     tags: [Quizzes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: courseCode
- *         required: true
- *         schema:
- *           type: string
- *         description: Code of the course
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               quiztitle:
- *                 type: string
- *               questions:
- *                 type: array
- *                 items:
- *                   type: object
- *               dueDate:
- *                 type: string
- *                 format: date
- *               totalPoints:
- *                 type: number
- *     responses:
- *       201:
- *         description: Quiz uploaded successfully
+ * tags:
+ *   name: Quizzes
+ *   description: Quiz management for students and admins
  */
-router.post('/course/:courseCode/quizzes',
-    authenticateAdmin,
-    quizController.uploadQuiz
-);
 
 /**
  * @swagger
- * /course/{courseCode}/quizzes:
+ * /api/v1/quiz/{courseCode}/quizzes:
  *   get:
- *     summary: Get all quizzes for a specific course
+ *     summary: Get all quizzes for a course
  *     tags: [Quizzes]
  *     parameters:
  *       - in: path
@@ -59,48 +22,21 @@ router.post('/course/:courseCode/quizzes',
  *         required: true
  *         schema:
  *           type: string
- *         description: Code of the course
+ *         description: The course code
  *     responses:
  *       200:
  *         description: List of quizzes
+ *       404:
+ *         description: Course not found
  */
-router.get('/course/:courseCode/quizzes',
-    quizController.getCourseQuizzes
-);
+
+router.get('/:courseCode/quizzes', quizSubmissionController.getCourseQuizzes);
 
 /**
  * @swagger
- * /course/{courseCode}/quizzes/{quizId}/reveal:
- *   put:
- *     summary: Admin reveals quiz answers
- *     tags: [Quizzes]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: courseCode
- *         required: true
- *         schema:
- *           type: string
- *       - in: path
- *         name: quizId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Quiz answers revealed
- */
-router.put('/course/:courseCode/quizzes/:quizId/reveal',
-    authenticateAdmin,
-    quizController.revealQuizAnswers
-);
-
-/**
- * @swagger
- * /course/{courseCode}/quizzes/{quizId}/submit:
+ * /api/v1/quiz/{courseCode}/{quizId}/submit:
  *   post:
- *     summary: Student submits a quiz
+ *     summary: Submit a quiz as a student
  *     tags: [Quizzes]
  *     security:
  *       - bearerAuth: []
@@ -121,6 +57,9 @@ router.put('/course/:courseCode/quizzes/:quizId/reveal',
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - studentId
+ *               - answers
  *             properties:
  *               studentId:
  *                 type: string
@@ -131,21 +70,55 @@ router.put('/course/:courseCode/quizzes/:quizId/reveal',
  *     responses:
  *       200:
  *         description: Quiz submitted successfully
+ *       400:
+ *         description: Invalid input or already submitted
+ *       401:
+ *         description: Unauthorized
  */
 
-// Add this right before line 138
-console.log('🔍 Checking handlers for submit route:');
-console.log('authenticateUser:', typeof authenticateUser, authenticateUser);
-console.log('quizController.submitQuiz:', typeof quizController.submitQuiz, quizController.submitQuiz);
-
-router.post('/course/:courseCode/quizzes/:quizId/submit',
-    authenticateUser,
-    quizController.submitQuiz
+router.post(
+  '/:courseCode/:quizId/submit',
+  authenticateUser,
+  quizSubmissionController.submitQuiz
 );
 
-// router.post('/course/:courseCode/quizzes/:quizId/submit',
-//     authenticateUser,
-//     quizController.submitQuiz
-// );
+
+/**
+ * @swagger
+ * /api/v1/quiz/{courseCode}/{quizId}/{studentId}/results:
+ *   get:
+ *     summary: Get quiz result for a student
+ *     tags: [Quizzes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: courseCode
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: quizId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: studentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Quiz result retrieved
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Not found
+ */
+router.get(
+  '/:courseCode/:quizId/:studentId/results',
+  authenticateUser,
+  quizSubmissionController.getQuizResults
+);
 
 module.exports = router;

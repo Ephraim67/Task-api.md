@@ -1,20 +1,18 @@
 require('dotenv').config();
-
-
 const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('./config/database');
-// const bcrypt = require('bcrypt');
-// const User = require('./models/user');
+const bcrypt = require('bcrypt');
+const User = require('./models/admin');
 const authstudentsRoutes = require('./routes/authstudentsRoutes');
-// const quizRoutes = require('./routes/quizRoutes'); 
+const quizRoutes = require('./routes/quizRoutes'); 
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 
 
-// const adminRoutes = require('./routes/auth');
+const authAdmin = require('./routes/authAdmin');
 
 
 const app = express();
@@ -31,13 +29,13 @@ connectDB();
 app.use(express.json());
 
 
-// app.use('/api/v1/admin/', adminRoutes);
+app.use('/api/v1/admin/', authAdmin);
 
 
 app.use('/api/v1/students', authstudentsRoutes);
 
 
-// app.use('/api/v1/quizroute', quizRoutes);
+app.use('/api/v1/quizroute', quizRoutes);
 
 
 app.get('/', (req, res) => {
@@ -45,35 +43,35 @@ app.get('/', (req, res) => {
 })
 
 
-// async function defaultUser() {
-//     try {
-//         const defaultUsername = 'admin';
-//         const defaultPassword = 'admin123';
+async function defaultUser() {
+    try {
+        const defaultUsername = 'admin';
+        const defaultPassword = 'admin123';
 
-//         const existingUser = await User.findOne({ username: defaultUsername });
+        const existingUser = await User.findOne({ username: defaultUsername });
 
-//         if (!existingUser) {
+        if (!existingUser) {
             
 
-//             await User.create({
-//                 username: defaultUsername,
-//                 password: defaultPassword,
-//                 role: 'admin'
-//             });
+            await User.create({
+                username: defaultUsername,
+                password: defaultPassword,
+                role: 'admin'
+            });
 
-//             console.log(`Default user created: ${defaultUsername}`);
-//         } else {
-//             console.log(`Default user already exists: ${defaultUsername}`);
-//         }
-//     } catch (error) {
-//         console.error('Error creating default user:', error);
-//     }
-// }
+            console.log(`Default user created: ${defaultUsername}`);
+        } else {
+            console.log(`Default user already exists: ${defaultUsername}`);
+        }
+    } catch (error) {
+        console.error('Error creating default user:', error);
+    }
+}
 
 
 mongoose.connection.once('open', async () => {
     console.log('MongoDB connected');
-    // await defaultUser();
+    await defaultUser();
 });
 
 
