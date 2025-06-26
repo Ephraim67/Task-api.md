@@ -12,7 +12,7 @@ const { check } = require('express-validator');
 
 /**
  * @swagger
- * /students/signup:
+ * /api/v1/students/signup:
  *   post:
  *     summary: Register a new student
  *     tags: [Students]
@@ -39,18 +39,26 @@ const { check } = require('express-validator');
  *         description: Email already exists
  */
 router.post(
-    '/signup',
-    [
-        check('fullname').notEmpty().withMessage('Fullname is required'),
-        check('email').isEmail().withMessage('Valid email is required'),
-        check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-        check('confirmPassword').notEmpty().withMessage('Please confirm your password'),
-        check('phoneNumber').notEmpty().withMessage('Phone number is required'),
-        check('gender').isIn(['Male', 'Female']).withMessage('Invalid gender'),
-        check('course').notEmpty().withMessage('Course is required')
-    ],
-    authStudentsController.studentSignup
+  '/signup',
+  (req, res, next) => {
+    if (req.body.gender) {
+      req.body.gender =
+        req.body.gender.charAt(0).toUpperCase() + req.body.gender.slice(1).toLowerCase();
+    }
+    next();
+  },
+  [
+    check('fullname').notEmpty().withMessage('Fullname is required'),
+    check('email').isEmail().withMessage('Valid email is required'),
+    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    check('confirmPassword').notEmpty().withMessage('Please confirm your password'),
+    check('phoneNumber').notEmpty().withMessage('Phone number is required'),
+    check('gender').isIn(['Male', 'Female']).withMessage('Invalid gender'),
+    check('course').notEmpty().withMessage('Course is required')
+  ],
+  authStudentsController.studentSignup
 );
+
 
 
 /**
