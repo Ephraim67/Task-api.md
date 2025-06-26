@@ -63,7 +63,7 @@ router.post(
 
 /**
  * @swagger
- * /students/login:
+ * /api/v1/students/login:
  *   post:
  *     summary: Login as a student
  *     tags: [Students]

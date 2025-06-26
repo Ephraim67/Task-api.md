@@ -12,6 +12,20 @@ const { authenticateUser } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
+ * /api/v1/students/course-catalogue:
+ *   get:
+ *     summary: Get all courses
+ *     tags: [Course]
+ *     responses:
+ *       200:
+ *         description: List of courses
+ */
+router.get('/course-catalogue', quizSubmissionController.getCourses);
+
+
+
+/**
+ * @swagger
  * /api/v1/quiz/{courseCode}/quizzes:
  *   get:
  *     summary: Get all quizzes for a course
