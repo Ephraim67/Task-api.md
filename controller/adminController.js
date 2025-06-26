@@ -50,6 +50,17 @@ exports.login = async (req, res) => {
             }
         });
 
+        // console.log(res.json({
+        //     success: true,
+        //     message: 'Login successful',
+        //     token,
+        //     user: {
+        //         id: user._id,
+        //         username: user.username,
+        //         role: user.role
+        //     }
+        // }));
+
     }
     catch (error) {
         console.error('Login error:', error);
