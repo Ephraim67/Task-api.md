@@ -10,6 +10,8 @@ const quizRoutes = require('./routes/quizRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
+const cors = require('cors');
+
 
 
 const authAdmin = require('./routes/authAdmin');
@@ -19,6 +21,12 @@ const app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 console.log('MONGO_URI in main app:', process.env.MONGO_URI ? 'EXISTS' : 'UNDEFINED');
 
