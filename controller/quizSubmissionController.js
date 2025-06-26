@@ -69,7 +69,7 @@ exports.uploadQuiz = async (req, res) => {
 
 exports.getAllStudents = async (req, res) => {
   try {
-    const students = await Student.find().select('-password'); // Exclude passwords
+    const students = await Student.find().select('-password'); 
     res.status(200).json({
       success: true,
       count: students.length,
