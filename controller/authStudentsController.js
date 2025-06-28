@@ -36,10 +36,13 @@ exports.studentSignup = async (req, res) => {
         await user.save();
 
         return res.status(201).json({ message: 'User created successfully.' });
+        console.log("Fetched students:", students);
+
     } catch (error) {
         console.error('Error creating user:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
+
 };
 
 

@@ -97,7 +97,7 @@ router.get('/', authenticateAdmin, quizSubmissionController.getAllStudents);
  *       200:
  *         description: List of courses
  */
-router.get('/course-catalogue', quizSubmissionController.getCourses);
+router.get('/course-catalogue', authenticateAdmin, quizSubmissionController.getCourses);
 
 /**
  * @swagger
