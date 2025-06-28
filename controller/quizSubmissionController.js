@@ -82,10 +82,12 @@ exports.getAllStudents = async (req, res) => {
 };
 
 exports.getCourses = async (req, res) => {
+    console.log('✅ GET /api/v1/students/course-catalogue called');
     try {
         const courses = await Course.find();
         res.json({ courses });
     } catch (err) {
+        console.error('Error fetching courses:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const quizSubmissionController = require('../controller/quizSubmissionController');
+
 const { authenticateUser } = require('../middlewares/authMiddleware');
 
 /**
@@ -10,9 +11,10 @@ const { authenticateUser } = require('../middlewares/authMiddleware');
  *   description: Quiz management for students and admins
  */
 
+
 /**
  * @swagger
- * /api/v1/students/course-catalogue:
+ * /api/v1/quizroute/course-catalogue:
  *   get:
  *     summary: Get all courses
  *     tags: [Course]
@@ -20,7 +22,10 @@ const { authenticateUser } = require('../middlewares/authMiddleware');
  *       200:
  *         description: List of courses
  */
-router.get('/course-catalogue', quizSubmissionController.getCourses);
+router.get('/course-catalogue', (req, res, next) => {
+  console.log('✅ GET /api/v1/students/course-catalogue called');
+  next();
+}, quizSubmissionController.getCourses);
 
 
 
