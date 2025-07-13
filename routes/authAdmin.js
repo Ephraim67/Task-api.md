@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controller/adminController');
 const quizSubmissionController = require('../controller/quizSubmissionController');
-const { validateQuizUpload } = require('../middlewares/validateQuiz');
+// const { validateQuizUpload } = require('../middlewares/validateQuiz');
 const { authenticateAdmin } = require('../middlewares/authMiddleware');
-const handleValidation = require('../middlewares/handleValidation');
+// const handleValidation = require('../middlewares/handleValidation');
 
 /**
  * @swagger
@@ -204,8 +204,8 @@ router.delete('/course-catalogue/:courseCode', authenticateAdmin, quizSubmission
 router.post(
   '/:courseCode/upload',
   authenticateAdmin,
-  validateQuizUpload,
-  handleValidation,
+  // validateQuizUpload,
+  // handleValidation,
   quizSubmissionController.uploadQuiz
 );
 

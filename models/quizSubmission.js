@@ -1,44 +1,97 @@
 const mongoose = require('mongoose');
+const { nanoid } = require('nanoid');
 
-// Embedded question schema
 const questionSchema = new mongoose.Schema({
-  questionText: { 
+  id: {
     type: String,
-    required: true
-},
-
-options: {
-    type: [String],
     required: true,
-    validate: [arr => arr.length >= 2, 'At least 2 options are required']
-},
-
-  correctAnswer: { type: String, required: true },
-  points: { type: Number, default: 1 }
+    default: () => nanoid(10)
+  },
+  question: { 
+    type: String, 
+    required: true,
+    minlength: 10,
+    maxlength: 1000
+  },
+  optionA: { 
+    type: String, 
+    required: true,
+    maxlength: 500 
+  },
+  optionB: { 
+    type: String, 
+    required: true,
+    maxlength: 500 
+  },
+  optionC: { 
+    type: String, 
+    required: true,
+    maxlength: 500 
+  },
+  optionD: { 
+    type: String, 
+    required: true,
+    maxlength: 500 
+  },
+  answer: {
+    type: String,
+    required: true,
+    enum: ['A', 'B', 'C', 'D'],
+    uppercase: true,
+    trim: true
+  },
+  courseCategory: { 
+    type: String, 
+    required: true,
+    enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'], // example
+    uppercase: true
+  }
 }, { _id: false });
 
-// Embedded quiz schema
 const quizSchema = new mongoose.Schema({
   id: {
     type: String,
     required: true,
-    default: () => Date.now().toString()
+    default: () => nanoid(10) 
   },
-  quiztitle: { type: String, required: true },
-  questions: { type: [questionSchema], required: true },
-  dueDate: { type: Date },
-  totalPoints: { type: Number },
-  revealedAnswers: { type: Boolean, default: false }
+  questions: {
+    type: [questionSchema],
+    required: true,
+    validate: {
+      validator: (v) => Array.isArray(v) && v.length > 0 && v.length <= 50,
+      message: 'Quiz must have between 1 and 50 questions'
+    }
+  },
+  revealedAnswers: {
+    type: Boolean,
+    default: false
+  }
 }, { _id: false });
 
-// Main Course schema
 const courseSchema = new mongoose.Schema({
-  courseCode: { type: String, required: true, unique: true },
-  courseName: { type: String, required: true },
-  description: { type: String },
+  courseCode: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    uppercase: true,
+    trim: true,
+    maxlength: 20
+  },
+  courseName: { 
+    type: String, 
+    required: true,
+    maxlength: 100 
+  },
+  description: { 
+    type: String,
+    maxlength: 2000 
+  },
   quizzes: [quizSchema]
 }, {
   timestamps: true
 });
+
+
+courseSchema.index({ courseCode: 1 }, { unique: true });
 
 module.exports = mongoose.model('Course', courseSchema);

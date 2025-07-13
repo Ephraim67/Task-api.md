@@ -49,7 +49,7 @@ router.get('/course-catalogue', (req, res, next) => {
  *         description: Course not found
  */
 
-router.get('/:courseCode/quizzes', quizSubmissionController.getCourseQuizzes);
+router.get('/:courseCode/quizzes', authenticateUser, quizSubmissionController.getCourseQuizzes);
 
 /**
  * @swagger

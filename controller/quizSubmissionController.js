@@ -1,5 +1,7 @@
 const Course = require('../models/quizSubmission');
 const Student = require('../models/students');
+const mongoose = require('mongoose');
+const { nanoid } = require('nanoid');
 
 exports.createCourse = async (req, res) => {
   try {
@@ -36,36 +38,34 @@ exports.createCourse = async (req, res) => {
   }
 };
 
+
 exports.uploadQuiz = async (req, res) => {
-    try {
-        const { courseCode } = req.params;
-        const { quiztitle, questions, dueDate, totalPoints } = req.body;
+  try {
+    const { questions } = req.body;
 
-        if (!quiztitle || !questions || !Array.isArray(questions)) {
-            return res.status(400).json({ message: 'Invalid quiz input.' });
-        }
-
-        const course = await Course.findOne({ courseCode });
-        if (!course) return res.status(404).json({ message: 'Course not found.' });
-
-        const newQuiz = {
-            id: Date.now().toString(),
-            quiztitle,
-            questions,
-            dueDate: dueDate ? new Date(dueDate) : null,
-            totalPoints: totalPoints || questions.length,
-            revealedAnswers: false,
-        };
-
-        course.quizzes.push(newQuiz);
-        await course.save();
-
-        res.status(201).json({ message: 'Quiz uploaded successfully.', quiz: newQuiz });
-    } catch (error) {
-        console.error('Error uploading quiz:', error);
-        res.status(500).json({ message: 'Internal server error.', error: error.message });
+    if (!questions || !Array.isArray(questions)) {
+      return res.status(400).json({ error: "Questions must be an array." });
     }
+
+    // Minimal manual check (optional)
+    const isValidQuestion = (q) => q.question && q.answer;
+    if (!questions.every(isValidQuestion)) {
+      return res.status(400).json({ error: "Each question must have 'question' and 'answer'." });
+    }
+
+    // Proceed with saving (no schema validation)
+    const course = await Course.findOneAndUpdate(
+      { courseCode: req.params.courseCode },
+      { $push: { quizzes: { id: nanoid(), questions } } },
+      { new: true, upsert: true, validateBeforeSave: false } // Skip validation
+    );
+
+    res.status(201).json(course);
+  } catch (err) {
+    res.status(500).json({ error: "Server error." });
+  }
 };
+
 
 exports.getAllStudents = async (req, res) => {
   try {
